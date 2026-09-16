@@ -1,3 +1,7 @@
+"use client";
+
+import { Reveal, TextMorph } from "@/components/componentry";
+
 type Props = {
   index?: string;
   eyebrow?: string;
@@ -28,7 +32,7 @@ export function PageSection({
       } ${className}`}
     >
       {(eyebrow || title || index) && (
-        <div className="mb-10 grid gap-4 md:grid-cols-[88px_1fr] md:items-end">
+        <Reveal className="mb-10 grid gap-4 md:grid-cols-[88px_1fr] md:items-end">
           {index ? (
             <p className="font-mono text-[11px] tracking-[0.2em] text-[var(--text-muted)]">
               {index}
@@ -37,14 +41,18 @@ export function PageSection({
             <span />
           )}
           <div>
-            {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
+            {eyebrow ? (
+              <p className="eyebrow">
+                <TextMorph text={eyebrow} />
+              </p>
+            ) : null}
             {title ? (
               <h2 className="display mt-2 text-3xl uppercase md:text-5xl">
                 {title}
               </h2>
             ) : null}
           </div>
-        </div>
+        </Reveal>
       )}
       {children}
     </section>

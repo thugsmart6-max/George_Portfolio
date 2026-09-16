@@ -19,17 +19,3 @@ export function handleApiError(error: unknown) {
   console.error(error);
   return jsonError("Something went wrong. Please try again.", 500);
 }
-
-export function serializeDoc<T extends { _id: { toString(): string }; toObject?: () => unknown }>(
-  doc: T
-) {
-  const obj = (typeof doc.toObject === "function" ? doc.toObject() : doc) as Record<
-    string,
-    unknown
-  >;
-  const { _id, __v, passwordHash, resetTokenHash, ...rest } = obj;
-  return {
-    id: String(_id),
-    ...rest,
-  };
-}

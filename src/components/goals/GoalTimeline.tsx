@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { formatINR } from "@/lib/utils";
 import type { FinancialGoal, GoalProjection } from "@/types";
 

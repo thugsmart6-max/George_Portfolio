@@ -1,18 +1,15 @@
 "use client";
 
 const PHRASES = [
-  "PURPOSEFUL Wealth",
-  "CREATING Assets",
-  "Narrative through Thinking",
-  "WITH Meaning",
-  "PURPOSEFUL Wealth",
-  "CREATING Assets",
-  "Narrative through Thinking",
-  "WITH Meaning",
+  "Build Wealth",
+  "Create Freedom",
+  "Leave a Legacy",
+  "Own Assets",
+  "Cash Flow",
 ];
 
 export function MeaningTicker() {
-  const loop = [...PHRASES, ...PHRASES];
+  const loop = [...PHRASES, ...PHRASES, ...PHRASES];
   return (
     <section className="overflow-hidden border-y border-[var(--border)] py-8 sm:py-10 md:py-14">
       <div className="ticker-track gap-6 px-4 sm:gap-10">
@@ -27,7 +24,7 @@ export function MeaningTicker() {
         ))}
       </div>
       <p className="mt-6 text-center text-[11px] uppercase tracking-[0.28em] text-[var(--text-muted)]">
-        Narrative through enterprise
+        The choices you make today
       </p>
     </section>
   );

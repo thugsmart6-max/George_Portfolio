@@ -23,11 +23,16 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Dr. George Antony — Wealth By George | Thanith Investments",
-    template: "%s · Dr. George Antony",
+    default: "JG Antony — Dr. George Antony | Wealth By George",
+    template: "%s · JG Antony",
   },
   description:
-    "Entrepreneur, investor, and educator. Founder of Thanith Investments. Creator of Wealth By George — business growth, wealth mindset, and financial awareness.",
+    "Personal finance and investment education by Dr. George Antony — JG Antony / Wealth By George. Services, academy, planners, and free resources for investors, students, and businesses.",
+  icons: {
+    icon: [{ url: "/images/logo/logo.png", type: "image/png" }],
+    apple: "/images/logo/logo.png",
+    shortcut: "/images/logo/logo.png",
+  },
 };
 
 export const viewport = {
@@ -44,6 +49,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${outfit.variable} ${fraunces.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var p=location.pathname;if(/^\\/(services|academy|stories)(\\/|$)/.test(p)){document.documentElement.setAttribute("data-theme","dark");document.documentElement.classList.add("dark");}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="min-h-full bg-[var(--bg-primary)] text-[var(--text-primary)]">
         <AppProviders>{children}</AppProviders>
       </body>

@@ -1,5 +1,7 @@
 "use client";
 
+import { scrollToId } from "@/lib/scroll-to-id";
+
 type Item = { id: string; label: string };
 
 export function ChapterRail({ items }: { items: Item[] }) {
@@ -15,6 +17,11 @@ export function ChapterRail({ items }: { items: Item[] }) {
           <a
             key={item.id}
             href={`#${item.id}`}
+            onClick={(e) => {
+              e.preventDefault();
+              window.history.replaceState(null, "", `#${item.id}`);
+              scrollToId(item.id);
+            }}
             className="flex items-center gap-3 px-1 py-1 text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
           >
             <span className="font-mono">{String(i + 1).padStart(2, "0")}</span>

@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
+import { TextMorph } from "@/components/componentry";
+import { BRAND } from "@/lib/brand";
 
 type Crumb = { href?: string; label: string };
 
@@ -11,9 +13,11 @@ type Props = {
   title: React.ReactNode;
   description?: string;
   meta?: string;
+  quote?: React.ReactNode;
   crumbs?: Crumb[];
   align?: "split" | "stack";
   action?: { href: string; label: string };
+  titleVariant?: "display" | "quote";
 };
 
 export function EditorialPageHero({
@@ -22,20 +26,26 @@ export function EditorialPageHero({
   title,
   description,
   meta,
+  quote,
   crumbs,
   align = "split",
   action,
+  titleVariant = "display",
 }: Props) {
   return (
-    <header className="relative border-b border-[var(--border)] pb-12 md:pb-16">
+    <header className="relative min-w-0 overflow-hidden border-b border-[var(--border)] pb-12 md:pb-16">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="binary-strip"
-        >
-          0&nbsp;1&nbsp;0&nbsp;1&nbsp;0&nbsp;1
-        </motion.p>
+        {quote ? (
+          <div className="min-w-0 flex-1 overflow-hidden">{quote}</div>
+        ) : (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--accent-2)]"
+          >
+            {BRAND.mark}
+          </motion.p>
+        )}
         {crumbs?.length ? (
           <nav className="flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)]">
             <Link href="/" className="hover:text-[var(--text-primary)]">
@@ -79,13 +89,17 @@ export function EditorialPageHero({
             transition={{ delay: 0.1 }}
             className="text-[11px] uppercase tracking-[0.28em] text-[var(--text-muted)]"
           >
-            {eyebrow}
+            <TextMorph text={eyebrow} />
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.16, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-            className="display mt-4 text-[clamp(2.8rem,8vw,6.5rem)] uppercase leading-[0.9]"
+            className={
+              titleVariant === "quote"
+                ? "display mt-4 max-w-4xl normal-case leading-[1.15]"
+                : "display mt-4 text-[clamp(2.8rem,8vw,6.5rem)] uppercase leading-[0.9]"
+            }
           >
             {title}
           </motion.h1>

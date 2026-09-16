@@ -2,11 +2,12 @@ import Link from "next/link";
 
 export const SITE_CHAPTERS = [
   { href: "/about", label: "About", index: "01" },
-  { href: "/group", label: "Group", index: "02" },
-  { href: "/books", label: "Books", index: "03" },
-  { href: "/advice", label: "Advice", index: "04" },
-  { href: "/calculators", label: "Tools", index: "05" },
-  { href: "/contact", label: "Contact", index: "06" },
+  { href: "/services", label: "Services", index: "02" },
+  { href: "/academy", label: "Academy", index: "03" },
+  { href: "/stories", label: "Stories", index: "04" },
+  { href: "/resources", label: "Resources", index: "05" },
+  { href: "/gallery", label: "Gallery", index: "06" },
+  { href: "/contact", label: "Contact", index: "07" },
 ] as const;
 
 type Props = {

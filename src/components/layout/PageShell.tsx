@@ -8,7 +8,7 @@ export function PageShell({ children, wide = false }: Props) {
   return (
     <div className="relative min-h-screen">
       <div
-        className={`relative z-10 mx-auto px-4 pb-24 pt-24 sm:px-5 sm:pb-32 sm:pt-28 md:px-10 md:pt-36 ${
+        className={`relative z-10 mx-auto min-w-0 px-4 pb-[calc(8rem+env(safe-area-inset-bottom))] pt-20 sm:px-5 sm:pb-40 sm:pt-24 md:px-10 md:pt-28 ${
           wide ? "max-w-[1500px]" : "max-w-[1400px]"
         }`}
       >
