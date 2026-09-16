@@ -7,6 +7,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { usePathname } from "next/navigation";
 
 type Theme = "light" | "dark";
 
@@ -15,28 +16,41 @@ const ThemeContext = createContext<{
   toggle: () => void;
 }>({ theme: "light", toggle: () => {} });
 
-function applyTheme(next: Theme) {
+const DARK_DEFAULT_PREFIXES = ["/services", "/academy", "/stories"];
+
+function isDarkDefaultPath(pathname: string) {
+  return DARK_DEFAULT_PREFIXES.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`)
+  );
+}
+
+function applyTheme(next: Theme, persist: boolean) {
   document.documentElement.setAttribute("data-theme", next);
   document.documentElement.classList.toggle("dark", next === "dark");
-  window.localStorage.setItem("ga-theme", next);
+  if (persist) window.localStorage.setItem("ga-theme", next);
+}
+
+function storedTheme(): Theme {
+  const stored = window.localStorage.getItem("ga-theme");
+  return stored === "dark" || stored === "light" ? stored : "light";
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const pathname = usePathname() ?? "/";
+  const [theme, setTheme] = useState<Theme>(() =>
+    isDarkDefaultPath(pathname) ? "dark" : "light"
+  );
 
   useEffect(() => {
-    const stored = window.localStorage.getItem("ga-theme") as Theme | null;
-    // Editorial default = warm paper (light), like jasminegunarto.com
-    const initial =
-      stored === "dark" || stored === "light" ? stored : "light";
-    setTheme(initial);
-    applyTheme(initial);
-  }, []);
+    const next = isDarkDefaultPath(pathname) ? "dark" : storedTheme();
+    setTheme(next);
+    applyTheme(next, false);
+  }, [pathname]);
 
   const toggle = useCallback(() => {
     setTheme((prev) => {
       const next = prev === "light" ? "dark" : "light";
-      applyTheme(next);
+      applyTheme(next, true);
       return next;
     });
   }, []);

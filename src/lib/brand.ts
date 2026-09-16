@@ -1,6 +1,7 @@
 export const BRAND = {
   name: "Dr. George Antony",
   shortName: "Dr. George",
+  mark: "JG Antony",
   brand: "Wealth By George",
   holding: "Thanith Investments Pvt Ltd",
   email: "jayageorgeantony.mg@gmail.com",
@@ -8,20 +9,12 @@ export const BRAND = {
   visionYear: 2031,
   motto:
     "The poor man and the rich man have the same 24 hours. What differs is the mind that runs them.",
-  philosophy: "Wealth isn't built by income. It's built by thinking.",
+  philosophy: "Your future wealth is built by the choices you make today.",
+  headline: "Build Wealth. Create Freedom. Leave a Legacy.",
   heroLine:
-    "Building businesses, empowering people, and creating wealth through education, technology, and innovation.",
+    "Wealth is not built by working harder alone — it is built by making money work intelligently for you.",
   roles: ["Entrepreneur", "Investor", "Educator"],
 } as const;
-
-export const VALUES = [
-  { title: "Innovation", blurb: "Build what does not exist yet." },
-  { title: "Continuous Learning", blurb: "Stay curious. Stay sharp." },
-  { title: "Integrity", blurb: "Trust is the real compound interest." },
-  { title: "Strategic Thinking", blurb: "Decide with clarity, not noise." },
-  { title: "Wealth Creation", blurb: "Assets over appearances." },
-  { title: "Positive Impact", blurb: "Grow people as you grow enterprises." },
-] as const;
 
 export const VERTICALS = [
   {

@@ -6,7 +6,7 @@ import {
   useMotionValue,
   useSpring,
   type HTMLMotionProps,
-} from "framer-motion";
+} from "motion/react";
 import Link from "next/link";
 import { useRef, type ReactNode } from "react";
 

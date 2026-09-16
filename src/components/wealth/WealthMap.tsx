@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { formatINR, formatPercent } from "@/lib/utils";
 import type { WealthMetrics, GoalProjection } from "@/types";
 

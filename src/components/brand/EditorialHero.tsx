@@ -1,20 +1,28 @@
 "use client";
 
-import { motion } from "framer-motion";
+import Link from "next/link";
+import { motion } from "motion/react";
 import { BRAND } from "@/lib/brand";
+import { FOUNDER } from "@/lib/media";
 import { EditorialPortrait } from "@/components/brand/EditorialPortrait";
+import { SiteCutout } from "@/components/brand/ThemeDoodles";
 
 export function EditorialHero() {
   return (
-    <section className="relative min-h-[100svh] px-4 pb-12 pt-24 sm:px-5 sm:pb-16 sm:pt-28 md:px-10 md:pb-24 md:pt-36">
-      <div className="mx-auto flex min-h-[70svh] max-w-[1400px] flex-col justify-between sm:min-h-[75svh]">
+    <section className="relative min-h-[100svh] px-4 pb-28 pt-20 sm:px-5 sm:pb-32 sm:pt-24 md:px-10 md:pb-40 md:pt-28">
+      <SiteCutout
+        id="moneyBag"
+        rotate={-10}
+        className="absolute bottom-16 right-4 hidden w-[64px] lg:block xl:right-10 xl:w-[76px]"
+      />
+      <div className="relative z-10 mx-auto flex min-h-[70svh] max-w-[1400px] flex-col justify-between sm:min-h-[75svh]">
         <div className="flex items-start justify-between gap-6">
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="binary-strip"
+            className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--accent-2)]"
           >
-            0&nbsp;1&nbsp;0&nbsp;1&nbsp;0&nbsp;1
+            {BRAND.mark}
           </motion.p>
           <motion.p
             initial={{ opacity: 0 }}
@@ -24,7 +32,7 @@ export function EditorialHero() {
           >
             {BRAND.location}
             <br />
-            {BRAND.visionYear}
+            {BRAND.brand}
           </motion.p>
         </div>
 
@@ -36,32 +44,30 @@ export function EditorialHero() {
               transition={{ delay: 0.15 }}
               className="text-[11px] uppercase tracking-[0.28em] text-[var(--text-muted)]"
             >
-              Wealth mindset
+              {BRAND.name}
             </motion.p>
 
             <motion.h1
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.22, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-              className="hero-giant mt-4 text-[clamp(2.6rem,10vw,8.5rem)] uppercase"
+              className="display mt-4 text-[clamp(2.4rem,7vw,5.6rem)] uppercase leading-[0.9]"
             >
-              {BRAND.name}
+              Build wealth.
+              <br />
+              Create freedom.
+              <br />
+              <span className="display-italic normal-case">Leave a legacy.</span>
             </motion.h1>
 
-            <motion.div
+            <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="mt-8 flex flex-wrap items-end gap-x-8 gap-y-3"
+              className="mt-8 max-w-lg text-sm leading-relaxed text-[var(--text-secondary)] md:text-base"
             >
-              <p className="text-[11px] uppercase tracking-[0.24em]">
-                {BRAND.roles[0]}
-              </p>
-              <p className="display text-3xl md:text-4xl">A Founder</p>
-              <p className="text-[11px] uppercase tracking-[0.24em] text-[var(--text-muted)]">
-                {BRAND.brand}
-              </p>
-            </motion.div>
+              {BRAND.heroLine}
+            </motion.p>
           </div>
 
           <motion.div
@@ -71,22 +77,39 @@ export function EditorialHero() {
             className="max-w-md justify-self-end lg:max-w-none"
           >
             <EditorialPortrait
-              src="/images/george-antony.jpg"
+              src={FOUNDER.portrait}
               alt={BRAND.name}
-              caption="Single frame expression"
-              meta={BRAND.shortName}
+              caption="Founder"
+              meta={BRAND.mark}
               index="01"
               variant="hero"
-              objectPosition="center top"
+              objectPosition="center 8%"
             />
           </motion.div>
         </div>
 
-        <div className="mt-10 flex items-end justify-between gap-4 sm:mt-16 sm:gap-6">
-          <p className="max-w-sm text-sm leading-relaxed text-[var(--text-secondary)]">
-            {BRAND.heroLine}
-          </p>
-          <p className="scroll-cue hidden sm:block">scroll down</p>
+        <div className="mt-10 flex flex-col gap-6 pb-16 sm:mt-16 sm:pb-20">
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/contact"
+              data-cursor="cta"
+              className="btn-primary px-5 py-3 text-[11px] font-semibold"
+            >
+              Schedule a Consultation
+            </Link>
+            <Link
+              href="/academy"
+              className="btn-ghost px-5 py-3 text-[11px] font-semibold"
+            >
+              Join a Wealth Workshop
+            </Link>
+            <Link
+              href="/services"
+              className="btn-ghost px-5 py-3 text-[11px] font-semibold"
+            >
+              Start Your Journey
+            </Link>
+          </div>
         </div>
       </div>
     </section>

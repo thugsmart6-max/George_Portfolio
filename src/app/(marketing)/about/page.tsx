@@ -1,4 +1,9 @@
-import { BRAND, VALUES, TOPICS } from "@/lib/brand";
+import { BRAND } from "@/lib/brand";
+import {
+  ASSOCIATED_ORGS,
+  CHANNEL_PARTNERS,
+  QUALIFICATIONS,
+} from "@/lib/site";
 import { PageShell } from "@/components/layout/PageShell";
 import { EditorialPageHero } from "@/components/layout/EditorialPageHero";
 import { PageSection } from "@/components/layout/PageSection";
@@ -6,189 +11,194 @@ import { PageTraverse } from "@/components/layout/PageTraverse";
 import { PageEndCta } from "@/components/layout/PageEndCta";
 import { ChapterRail } from "@/components/layout/ChapterRail";
 import { EditorialPortrait } from "@/components/brand/EditorialPortrait";
+import { JourneyPath } from "@/components/brand/JourneyPath";
+import { FOUNDER } from "@/lib/media";
 
-export const metadata = { title: "About" };
+export const metadata = {
+  title: "About",
+  description:
+    "About Dr. George Antony — journey, B.E. CSE, NISM qualifications, channel partners, and associated organisations.",
+};
 
 export default function AboutPage() {
   return (
     <PageShell>
       <ChapterRail
         items={[
-          { id: "intro", label: "Intro" },
-          { id: "motto", label: "Motto" },
-          { id: "values", label: "Values" },
-          { id: "path", label: "Path" },
+          { id: "me", label: "About" },
+          { id: "journey", label: "Journey" },
+          { id: "education", label: "Education" },
+          { id: "partners", label: "Partners" },
+          { id: "orgs", label: "Orgs" },
         ]}
       />
 
       <EditorialPageHero
-        index="01 / 06"
-        eyebrow="About George"
+        index="01 / 07"
+        eyebrow="About Me"
         title={
           <>
-            Who&apos;s
+            The
             <br />
-            this?
+            teacher
           </>
         }
         meta={`${BRAND.roles.join(" · ")} · ${BRAND.location}`}
-        description={BRAND.heroLine}
+        description="Engineer, NISM-certified educator, and founder. The story is not a résumé dump — it is how a systems mind learned to talk about money."
         crumbs={[{ label: "About" }]}
-        action={{ href: "/contact", label: "Say hi" }}
+        action={{ href: "/contact", label: "Contact Us" }}
       />
 
       <section
-        id="intro"
+        id="me"
         className="mt-14 grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-start"
       >
         <div className="relative max-w-md lg:max-w-none">
           <EditorialPortrait
-            src="/images/george-antony-office.jpg"
+            src={FOUNDER.office}
             alt={BRAND.name}
-            caption="Single frame expression"
+            caption="Working frame"
             meta={BRAND.shortName}
-            index="02"
+            index="01"
             variant="about"
             objectPosition="center 18%"
           />
-          <div className="mt-8 grid grid-cols-3 border border-[var(--border)]">
-            {[
-              ["Holding", BRAND.holding],
-              ["Brand", BRAND.brand],
-              ["Horizon", BRAND.visionYear],
-            ].map(([k, v], i) => (
-              <div
-                key={k}
-                className={`p-4 ${i > 0 ? "border-l border-[var(--border)]" : ""}`}
-              >
-                <p className="text-[9px] uppercase tracking-[0.16em] text-[var(--text-muted)]">
-                  {k}
-                </p>
-                <p className="mt-2 text-[11px] leading-snug">{v}</p>
-              </div>
-            ))}
-          </div>
         </div>
-
         <div className="lg:pt-4">
           <p className="text-[11px] uppercase tracking-[0.24em] text-[var(--text-muted)]">
-            Hello, hi, hey
+            About Me
           </p>
           <h2 className="display mt-4 text-4xl md:text-5xl">{BRAND.name}</h2>
           <p className="mt-3 text-[11px] uppercase tracking-[0.18em] text-[var(--accent-2)]">
-            Founder, {BRAND.holding}
+            {BRAND.brand} · {BRAND.holding}
           </p>
           <blockquote className="display-italic mt-10 border-l-2 border-[var(--text-primary)] pl-6 text-3xl leading-snug md:text-4xl">
             “{BRAND.philosophy}”
           </blockquote>
           <div className="mt-10 space-y-5 text-base leading-relaxed text-[var(--text-secondary)]">
             <p>
-              Entrepreneur, educator, and founder of multiple ventures under{" "}
-              <strong className="text-[var(--text-primary)]">{BRAND.holding}</strong>.
-              Creator of <strong className="text-[var(--text-primary)]">{BRAND.brand}</strong>.
+              I teach personal finance and investing so people can decide — not
+              so a product can decide for them. Classrooms, workshops, and
+              one-to-one reviews sit next to the companies I build.
             </p>
             <p>
-              I teach wealth mindset across Tamil Nadu and India — then prove it by
-              building asset-generating businesses in education, technology, and
-              real estate.
-            </p>
-            <p>
-              Long-term horizon: Thanith verticals prepared for public markets by{" "}
-              <strong className="text-[var(--text-primary)]">{BRAND.visionYear}</strong>.
-            </p>
-          </div>
-          <div className="mt-8 flex flex-wrap gap-2">
-            {TOPICS.map((t) => (
-              <span key={t} className="tag-pill">
-                {t}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="motto" className="mt-20 invert-block px-6 py-14 md:px-12 md:py-20">
-        <div className="grid gap-8 md:grid-cols-[100px_1fr]">
-          <p className="font-mono text-[11px] tracking-[0.2em] opacity-60">
-            02
-          </p>
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.24em] opacity-60">
-              Motto
-            </p>
-            <p className="display mt-6 max-w-4xl text-3xl leading-snug md:text-5xl">
-              “{BRAND.motto}”
+              The public brand is {BRAND.brand}. The holding is{" "}
+              {BRAND.holding}. The work is the same: awareness, then allocation.
             </p>
           </div>
         </div>
       </section>
 
-      <PageSection id="values" index="03" eyebrow="Values" title="What I build on">
+      <PageSection
+        id="journey"
+        index="02"
+        eyebrow="Journey / Story"
+        title="Years, flipped"
+      >
+        <p className="mb-8 max-w-2xl text-sm text-[var(--text-secondary)] md:text-base">
+          Tap a chapter. Each one keeps a small gimmick — a line you can steal
+          for the week.
+        </p>
+        <JourneyPath />
+      </PageSection>
+
+      <PageSection
+        id="education"
+        index="03"
+        eyebrow="Education & qualifications"
+        title="Paper that matters"
+      >
         <ul className="grid gap-0 sm:grid-cols-2 lg:grid-cols-3">
-          {VALUES.map((v, i) => (
+          {QUALIFICATIONS.map((q, i) => (
             <li
-              key={v.title}
-              className="border border-[var(--border)] p-7 transition-colors hover:bg-[var(--surface)] sm:-ml-px sm:-mt-px"
+              key={`${q.code}-${q.title}`}
+              className="border border-[var(--border)] p-6 sm:-ml-px sm:-mt-px"
             >
               <p className="font-mono text-[11px] text-[var(--text-muted)]">
-                {String(i + 1).padStart(2, "0")}
+                {String(i + 1).padStart(2, "0")} · {q.kind}
               </p>
-              <p className="display mt-4 text-2xl md:text-3xl">{v.title}</p>
-              <p className="mt-3 text-sm text-[var(--text-secondary)]">{v.blurb}</p>
+              <p className="mt-3 text-[11px] uppercase tracking-[0.16em] text-[var(--accent-2)]">
+                {q.code}
+              </p>
+              <p className="display mt-2 text-2xl md:text-3xl">{q.title}</p>
             </li>
           ))}
         </ul>
       </PageSection>
 
-      <PageSection id="path" index="04" eyebrow="Path" title="From thinking to building">
-        <ol className="grid gap-0 md:grid-cols-3">
-          {[
-            {
-              t: "Think",
-              d: "Wealth starts in how you interpret money, assets, and time.",
-            },
-            {
-              t: "Teach",
-              d: "Wealth By George turns mindset into clear, practical awareness.",
-            },
-            {
-              t: "Build",
-              d: "Thanith verticals prove principles with real cash-flow systems.",
-            },
-          ].map((s, i) => (
-            <li
-              key={s.t}
-              className="relative border border-[var(--border)] p-8 md:-ml-px"
+      <PageSection
+        id="partners"
+        index="04"
+        eyebrow="Channel partners"
+        title="Channel partner with"
+      >
+        <div className="grid gap-0 border border-[var(--border)] md:grid-cols-2">
+          {CHANNEL_PARTNERS.map((p, i) => (
+            <article
+              key={p.name}
+              className={`p-8 ${i > 0 ? "border-t border-[var(--border)] md:border-l md:border-t-0" : ""}`}
             >
-              <p className="font-mono text-[11px] text-[var(--text-muted)]">
-                0{i + 1}
+              <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">
+                {p.role}
               </p>
-              <p className="display mt-4 text-4xl">{s.t}</p>
-              <p className="mt-4 text-sm leading-relaxed text-[var(--text-secondary)]">
-                {s.d}
-              </p>
-              {i < 2 ? (
-                <span className="absolute right-4 top-8 hidden text-[var(--text-muted)] md:block">
-                  →
-                </span>
-              ) : null}
-            </li>
+              <p className="display mt-4 text-3xl md:text-4xl">{p.name}</p>
+              <p className="mt-4 text-sm text-[var(--text-secondary)]">{p.line}</p>
+            </article>
           ))}
-        </ol>
+        </div>
+      </PageSection>
+
+      <PageSection
+        id="orgs"
+        index="05"
+        eyebrow="Associated organisations"
+        title="Marks on the door"
+      >
+        <div
+          data-theme="light"
+          className="border border-[var(--border)] bg-[var(--bg-primary)] p-5 text-[var(--text-primary)] sm:p-8"
+        >
+          <p className="mb-8 max-w-xl text-sm text-[var(--text-secondary)]">
+            Ventures under the Thanith group — education, technology, and real
+            assets sitting beside the JG Antony brand.
+          </p>
+          <ul className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-4">
+            {ASSOCIATED_ORGS.map((org) => (
+              <li
+                key={org.name}
+                className="flex flex-col border border-[var(--border)] bg-[var(--surface-elevated)]"
+              >
+                <div className="flex h-28 w-full items-center justify-center px-4 sm:h-32">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={org.logo}
+                    alt={org.name}
+                    className="h-16 w-full max-w-[148px] object-contain object-center sm:h-[4.5rem]"
+                  />
+                </div>
+                <div className="border-t border-[var(--border)] px-4 py-3 text-center">
+                  <p className="text-sm font-medium leading-snug">{org.name}</p>
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-[var(--text-muted)]">
+                    {org.note}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       </PageSection>
 
       <PageTraverse current="/about" />
-
       <PageEndCta
         title={
           <>
-            Explore the
+            See the
             <br />
-            Thanith map
+            services
           </>
         }
-        primary={{ href: "/group", label: "Group structure" }}
-        secondary={{ href: "/calculators", label: "Open tools" }}
+        primary={{ href: "/services", label: "Explore Services" }}
+        secondary={{ href: "/academy", label: "Join the Academy" }}
       />
     </PageShell>
   );

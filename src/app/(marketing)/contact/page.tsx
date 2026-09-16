@@ -5,18 +5,22 @@ import { PageSection } from "@/components/layout/PageSection";
 import { PageTraverse } from "@/components/layout/PageTraverse";
 import { ContactForm } from "@/components/brand/ContactForm";
 
-export const metadata = { title: "Contact" };
+export const metadata = {
+  title: "Contact Us",
+  description:
+    "Contact Dr. George Antony — academy, services, speaking, and finance questions.",
+};
 
 export default function ContactPage() {
   return (
     <PageShell>
       <EditorialPageHero
-        index="06 / 06"
-        eyebrow="Contact"
-        title={<>Say hi</>}
-        meta="Collaborations · Speaking · Partnerships"
-        description="Want to talk wealth, building, education — or Thanith ecosystem conversations? Reach out."
-        crumbs={[{ label: "Contact" }]}
+        index="07 / 07"
+        eyebrow="Contact Us"
+        title={<>Get started</>}
+        meta="Academy · Services · Speaking"
+        description="Write about a workshop, a review, a student cohort, or a question. Clarity over speed — expect a thoughtful reply."
+        crumbs={[{ label: "Contact Us" }]}
       />
 
       <section className="mt-14 grid gap-0 border border-[var(--border)] md:grid-cols-3">
@@ -44,32 +48,16 @@ export default function ContactPage() {
         ))}
       </section>
 
-      <section className="mt-10 invert-block px-6 py-10 md:px-10 md:py-12">
-        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.22em] opacity-60">
-              Office note
-            </p>
-            <p className="display mt-3 max-w-xl text-2xl md:text-3xl">
-              Prefer clarity over speed — expect a thoughtful reply.
-            </p>
-          </div>
-          <p className="text-[11px] uppercase tracking-[0.18em] opacity-70">
-            {BRAND.holding}
-          </p>
-        </div>
-      </section>
-
       <PageSection index="01" eyebrow="Message" title="Write a note" flush>
-        <ContactForm />
+        <ContactForm heading="Contact inbox" />
       </PageSection>
 
       <PageSection index="02" eyebrow="Also" title="Useful starting points">
         <div className="grid gap-0 border border-[var(--border)] sm:grid-cols-3">
           {[
-            { href: "/group", label: "Thanith map", n: "01" },
-            { href: "/calculators", label: "Tools", n: "02" },
-            { href: "/advice", label: "Advice", n: "03" },
+            { href: "/services", label: "Services", n: "01" },
+            { href: "/academy", label: "Academy", n: "02" },
+            { href: "/resources", label: "Resources", n: "03" },
           ].map((item, i) => (
             <a
               key={item.href}

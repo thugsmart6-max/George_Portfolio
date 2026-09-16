@@ -86,7 +86,20 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
+}
+
+html {
+  overflow-x: clip;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+html.lenis {
+  scroll-behavior: auto !important;
 }
 
 html.dark {
@@ -99,7 +112,7 @@ body {
   font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
   min-height: 100vh;
   min-height: 100dvh;
-  overflow-x: hidden;
+  overflow-x: clip;
   letter-spacing: -0.015em;
   position: relative;
   -webkit-text-size-adjust: 100%;
@@ -120,6 +133,13 @@ input,
 textarea,
 select {
   touch-action: manipulation;
+}
+
+input,
+textarea,
+select {
+  font-size: 1rem;
+  max-width: 100%;
 }
 
 /* Fixed editorial grid atmosphere */
@@ -207,7 +227,7 @@ a {
   color: var(--invert-text);
   border: 1px solid transparent;
   position: relative;
-  z-index: 1;
+  z-index: 0;
 }
 
 /* Attractive editorial buttons */
@@ -578,6 +598,50 @@ a {
   border: 1px solid var(--border);
 }
 
+.theme-doodle {
+  height: auto;
+  max-width: 160px;
+  user-select: none;
+}
+
+[data-theme="dark"] .theme-doodle {
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
+}
+
+.site-cutout {
+  height: auto;
+  max-width: none;
+  user-select: none;
+  filter: drop-shadow(0 8px 14px rgba(10, 10, 10, 0.12));
+}
+
+[data-theme="dark"] .site-cutout {
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+}
+
+.site-sticker {
+  height: auto;
+  max-width: none;
+  user-select: none;
+  filter: drop-shadow(0 10px 18px rgba(10, 10, 10, 0.18));
+  animation: sticker-float 9s ease-in-out infinite;
+}
+
+@keyframes sticker-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+[data-theme="dark"] .site-sticker {
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45))
+    saturate(0.92);
+}
+
 .shimmer {
   background: linear-gradient(
     90deg,
@@ -670,4 +734,277 @@ a {
   height: 6px;
   border-radius: 999px;
   background: var(--border);
+}
+
+/* Equity research infographic sheet — paper / ink */
+.ig-sheet {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface-elevated);
+  box-shadow: var(--shadow-glow);
+}
+
+.ig-mast {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 80% at 100% 0%, var(--mesh-b), transparent 55%),
+    radial-gradient(circle at 0% 100%, var(--mesh-a), transparent 42%),
+    var(--surface-elevated);
+  color: var(--text-primary);
+}
+
+.ig-mast::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+.ig-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 80% at 85% 20%, var(--mesh-b), transparent 55%),
+    radial-gradient(circle at 10% 80%, var(--mesh-a), transparent 40%),
+    var(--invert);
+  color: var(--invert-text);
+}
+
+.ig-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.12;
+  background-image:
+    linear-gradient(var(--invert-text) 1px, transparent 1px),
+    linear-gradient(90deg, var(--invert-text) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 60% 70% at 80% 40%, #000 20%, transparent 75%);
+}
+
+.ig-panel {
+  background: var(--surface-elevated);
+  padding: 1.15rem 1.2rem;
+}
+
+@media (min-width: 768px) {
+  .ig-panel {
+    padding: 1.35rem 1.45rem;
+  }
+}
+
+.ig-badge {
+  display: grid;
+  width: 1.85rem;
+  height: 1.85rem;
+  place-items: center;
+  border-radius: 999px;
+  background: #0a0a0a;
+  color: #ebeae4;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .ig-badge {
+  background: #ebeae4;
+  color: #0a0a0a;
+}
+
+.ig-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.45rem;
+  height: 7.5rem;
+}
+
+.ig-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: 0.35rem;
+}
+
+.ig-bar-fill {
+  width: 100%;
+  max-width: 2rem;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+  min-height: 8%;
+}
+
+.ig-meter {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.ig-meter > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+.ig-icon-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0.55rem 0.7rem;
+}
+
+.ig-icon-tile svg {
+  flex-shrink: 0;
+  color: var(--accent-2);
+}
+
+.expand-deck {
+  --expand-ink: var(--text-primary);
+}
+
+.expand-card {
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(165deg, var(--surface-elevated) 0%, var(--surface-solid) 100%);
+  color: var(--text-primary);
+  will-change: transform;
+  transition:
+    border-color 0.35s ease,
+    background 0.45s cubic-bezier(0.76, 0, 0.24, 1),
+    color 0.35s ease,
+    box-shadow 0.45s ease;
+}
+
+.expand-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  height: 2px;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 0.45s cubic-bezier(0.76, 0, 0.24, 1);
+  z-index: 2;
+}
+
+.expand-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-glow);
+}
+
+.expand-card:hover::before,
+.expand-card.is-open::before {
+  width: 100%;
+}
+
+.expand-card__kicker {
+  color: var(--accent-2);
+}
+
+.expand-card__summary,
+.expand-card__cta {
+  color: var(--text-secondary);
+}
+
+.expand-card__plus {
+  border: 1px solid var(--border-strong);
+  transition:
+    transform 0.35s cubic-bezier(0.76, 0, 0.24, 1),
+    background 0.35s ease,
+    color 0.35s ease;
+}
+
+.expand-card:hover .expand-card__cta {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.expand-card.is-open {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-color: var(--text-primary);
+  box-shadow: var(--shadow-glow);
+}
+
+.expand-card.is-open .expand-card__kicker,
+.expand-card.is-open .expand-card__summary,
+.expand-card.is-open .expand-card__cta {
+  color: inherit;
+  opacity: 0.72;
+}
+
+.expand-card.is-open .expand-card__plus {
+  transform: rotate(45deg);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--bg-primary);
+}
+
+.expand-card__glow {
+  position: absolute;
+  inset: auto -20% -40% auto;
+  width: 70%;
+  height: 70%;
+  pointer-events: none;
+  background: radial-gradient(circle, var(--mesh-b), transparent 68%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.expand-card.is-open .theme-doodle {
+  opacity: 0.2;
+  mix-blend-mode: difference;
+}
+
+.expand-stage {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background:
+    radial-gradient(ellipse 80% 70% at 100% 0%, var(--mesh-b), transparent 55%),
+    radial-gradient(circle at 0% 100%, var(--mesh-a), transparent 45%),
+    var(--surface-elevated);
+  padding: 1.5rem 1.35rem 1.75rem;
+  box-shadow: var(--shadow-glow);
+  touch-action: pan-y;
+}
+
+.expand-stage__rule {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), transparent);
+}
+
+.expand-stage__copy {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-primary) 72%, transparent);
+  padding: 1.25rem 1.15rem 1.4rem;
+}
+
+@media (min-width: 768px) {
+  .expand-stage {
+    padding: 2.25rem 2.5rem 2.5rem;
+  }
+
+  .expand-stage__copy {
+    padding: 1.75rem 1.85rem 1.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expand-card,
+  .expand-card__plus,
+  .expand-card::before {
+    transition: none;
+  }
 }

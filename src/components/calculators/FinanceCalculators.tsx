@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatINR } from "@/lib/utils";
 import {
   brokerageCalculate,
@@ -9,23 +9,18 @@ import {
   lumpsumFutureValue,
   marginCalculate,
   sipFutureValue,
+  swpAtYear,
   swpProjection,
   type BrokerSegment,
   type GstMode,
 } from "@/lib/calculators";
+import { scrollToId } from "@/lib/scroll-to-id";
 
-type Tab =
-  | "sip"
-  | "lumpsum"
-  | "swp"
-  | "gst"
-  | "emi"
-  | "brokerage"
-  | "margin";
+type Tab = "sip" | "swp" | "gst" | "emi" | "brokerage" | "margin";
+type InvestMode = "sip" | "lumpsum";
 
 const tabs: { id: Tab; label: string }[] = [
-  { id: "sip", label: "SIP" },
-  { id: "lumpsum", label: "Lumpsum" },
+  { id: "sip", label: "SIP / Lumpsum" },
   { id: "swp", label: "SWP" },
   { id: "gst", label: "GST" },
   { id: "emi", label: "EMI" },
@@ -33,10 +28,39 @@ const tabs: { id: Tab; label: string }[] = [
   { id: "margin", label: "Margin" },
 ];
 
+const TAB_IDS = new Set(tabs.map((t) => t.id));
+
+function toolFromLocation(): { tab: Tab; invest: InvestMode } | null {
+  if (typeof window === "undefined") return null;
+  const hash = window.location.hash.replace("#", "").toLowerCase();
+  const query = new URLSearchParams(window.location.search).get("tool")?.toLowerCase() ?? "";
+  const raw = hash || query;
+  if (!raw) return null;
+  if (raw === "lumpsum") return { tab: "sip", invest: "lumpsum" };
+  if (TAB_IDS.has(raw as Tab)) return { tab: raw as Tab, invest: "sip" };
+  return null;
+}
+
 function clamp(n: number, min: number, max: number) {
   if (!Number.isFinite(n)) return min;
   return Math.min(max, Math.max(min, n));
 }
+
+function money(n: number) {
+  if (!Number.isFinite(n)) return "₹0";
+  return formatINR(Math.round(n));
+}
+
+const CRORE = 1_00_00_000;
+const LAKH = 1_00_000;
+const SWP_INVEST_MIN = 1_000;
+const SWP_INVEST_MAX = 10 * CRORE;
+const SWP_WITHDRAW_MIN = 1_000;
+const SWP_WITHDRAW_MAX = 1 * CRORE;
+const SIP_MONTHLY_MIN = 500;
+const SIP_MONTHLY_MAX = 10 * LAKH;
+const LUMP_MIN = 500;
+const LUMP_MAX = 10 * CRORE;
 
 function SliderField({
   label,
@@ -57,35 +81,67 @@ function SliderField({
   prefix?: string;
   suffix?: string;
 }) {
-  const pct = ((clamp(value, min, max) - min) / (max - min || 1)) * 100;
+  const [draft, setDraft] = useState<string | null>(null);
+  const safe = clamp(Number.isFinite(value) ? value : min, min, max);
+  const pct = ((safe - min) / (max - min || 1)) * 100;
+  const shown =
+    draft ??
+    (Number.isInteger(safe) || step >= 1
+      ? Math.round(safe).toLocaleString("en-IN")
+      : String(safe));
 
   return (
     <div className="space-y-3">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <label className="text-sm text-[var(--text-secondary)]">{label}</label>
-        <div className="flex w-full max-w-none items-center gap-1 rounded-lg border border-[var(--border-strong)] bg-[var(--bg-primary)] px-3 py-2.5 sm:w-auto sm:min-w-[8.5rem] sm:max-w-[10rem]">
-          {prefix ? (
-            <span className="text-sm font-semibold text-[var(--accent-2)]">
-              {prefix}
-            </span>
-          ) : null}
-          <input
-            type="number"
-            inputMode="decimal"
-            min={min}
-            max={max}
-            step={step}
-            value={Number.isFinite(value) ? value : min}
-            onChange={(e) =>
-              onChange(clamp(Number(e.target.value), min, max))
-            }
-            className="w-full min-w-0 bg-transparent text-right text-sm font-semibold outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-          />
-          {suffix ? (
-            <span className="shrink-0 text-sm text-[var(--text-muted)]">
-              {suffix}
-            </span>
-          ) : null}
+        <div className="flex w-full items-center gap-2 sm:w-auto">
+          <div className="flex min-w-0 flex-1 items-center gap-1 rounded-lg border border-[var(--border-strong)] bg-[var(--bg-primary)] px-3 py-2.5 sm:min-w-[9.5rem] sm:max-w-[12rem] sm:flex-none">
+            {prefix ? (
+              <span className="text-sm font-semibold text-[var(--accent-2)]">
+                {prefix}
+              </span>
+            ) : null}
+            <input
+              type="text"
+              inputMode="decimal"
+              value={shown}
+              onFocus={(e) => {
+                setDraft(value === 0 ? "" : String(value));
+                requestAnimationFrame(() => e.target.select());
+              }}
+              onChange={(e) => {
+                const raw = e.target.value.replace(/[^\d.]/g, "");
+                setDraft(raw);
+                if (raw === "" || raw === ".") {
+                  onChange(min);
+                  return;
+                }
+                const n = Number(raw);
+                if (!Number.isFinite(n)) return;
+                onChange(Math.min(max, n));
+              }}
+              onBlur={() => {
+                setDraft(null);
+                onChange(clamp(Number.isFinite(value) ? value : min, min, max));
+              }}
+              className="w-full min-w-0 bg-transparent text-right text-sm font-semibold outline-none"
+            />
+            {suffix ? (
+              <span className="shrink-0 text-sm text-[var(--text-muted)]">
+                {suffix}
+              </span>
+            ) : null}
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setDraft(null);
+              onChange(min);
+            }}
+            className="shrink-0 px-2 py-2 text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+          >
+            Clear
+          </button>
         </div>
       </div>
       <input
@@ -93,7 +149,7 @@ function SliderField({
         min={min}
         max={max}
         step={step}
-        value={clamp(value, min, max)}
+        value={safe}
         onChange={(e) => onChange(Number(e.target.value))}
         className="calc-range"
         style={{ "--range-pct": `${pct}%` } as React.CSSProperties}
@@ -250,17 +306,17 @@ function InvestResults({
       <div className="space-y-1">
         <ResultRow
           label="Invested amount"
-          value={formatINR(Math.round(invested))}
+          value={money(invested)}
         />
         <ResultRow
           label="Est. returns"
-          value={formatINR(Math.round(gains))}
+          value={money(gains)}
           accent
         />
         <div className="mt-2 border-t border-[var(--border)] pt-4">
           <p className="text-sm text-[var(--text-secondary)]">Total value</p>
           <p className="display mt-1 break-all text-3xl tabular-nums text-[var(--accent-2)] sm:text-4xl md:text-5xl">
-            {formatINR(Math.round(total))}
+            {money(total)}
           </p>
         </div>
       </div>
@@ -275,9 +331,71 @@ function InvestResults({
   );
 }
 
-export function FinanceCalculators({ initial = "sip" }: { initial?: Tab }) {
-  const [tab, setTab] = useState<Tab>(initial);
+function SwpGrowwResults({
+  invested,
+  withdrawn,
+  remaining,
+  year,
+  maxYear,
+  onYear,
+}: {
+  invested: number;
+  withdrawn: number;
+  remaining: number;
+  year: number;
+  maxYear: number;
+  onYear: (n: number) => void;
+}) {
+  const safeMax = Math.max(1, maxYear);
+  const y = clamp(year, 1, safeMax);
+  const pct = ((y - 1) / (safeMax - 1 || 1)) * 100;
 
+  return (
+    <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg-primary)]">
+      <div className="flex items-center justify-between gap-3 bg-[var(--invert)] px-5 py-4 text-[var(--invert-text)]">
+        <p className="text-sm">Time period</p>
+        <p className="text-sm font-semibold tabular-nums">{y} Yr</p>
+      </div>
+      <div className="px-5 pb-6 pt-5">
+        <input
+          type="range"
+          min={1}
+          max={safeMax}
+          step={1}
+          value={y}
+          onChange={(e) => onYear(Number(e.target.value))}
+          className="calc-range"
+          style={{ "--range-pct": `${pct}%` } as React.CSSProperties}
+          aria-label="SWP time period"
+        />
+        <div className="mt-8 space-y-5">
+          <div className="flex items-baseline justify-between gap-3 text-sm">
+            <span className="text-[var(--text-secondary)]">Total investment</span>
+            <span className="font-medium tabular-nums">{money(invested)}</span>
+          </div>
+          <div className="flex items-baseline justify-between gap-3 text-sm">
+            <span className="text-[var(--text-secondary)]">Total withdrawal</span>
+            <span className="font-medium tabular-nums">{money(withdrawn)}</span>
+          </div>
+          <div className="flex items-baseline justify-between gap-3 text-sm">
+            <span className="text-[var(--text-secondary)]">Final value</span>
+            <span className="font-medium tabular-nums">{money(remaining)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function FinanceCalculators({
+  initial = "sip",
+}: {
+  initial?: Tab | "lumpsum";
+}) {
+  const [tab, setTab] = useState<Tab>(initial === "lumpsum" ? "sip" : initial);
+  const [investMode, setInvestMode] = useState<InvestMode>(
+    initial === "lumpsum" ? "lumpsum" : "sip"
+  );
   const [sipAmt, setSipAmt] = useState(25000);
   const [sipRate, setSipRate] = useState(12);
   const [sipYears, setSipYears] = useState(10);
@@ -286,10 +404,11 @@ export function FinanceCalculators({ initial = "sip" }: { initial?: Tab }) {
   const [lumpRate, setLumpRate] = useState(12);
   const [lumpYears, setLumpYears] = useState(10);
 
-  const [swpCorpus, setSwpCorpus] = useState(2500000);
-  const [swpWithdraw, setSwpWithdraw] = useState(20000);
+  const [swpCorpus, setSwpCorpus] = useState(10_00_000);
+  const [swpWithdraw, setSwpWithdraw] = useState(20_000);
   const [swpRate, setSwpRate] = useState(8);
   const [swpYears, setSwpYears] = useState(15);
+  const [swpViewYear, setSwpViewYear] = useState(1);
 
   const [gstAmount, setGstAmount] = useState(100000);
   const [gstRate, setGstRate] = useState(18);
@@ -307,6 +426,32 @@ export function FinanceCalculators({ initial = "sip" }: { initial?: Tab }) {
   const [marginPrice, setMarginPrice] = useState(500);
   const [marginQty, setMarginQty] = useState(100);
   const [marginPct, setMarginPct] = useState(20);
+
+  const applyTool = (next: { tab: Tab; invest?: InvestMode }, scroll: boolean) => {
+    setTab(next.tab);
+    if (next.invest) setInvestMode(next.invest);
+    const hash = next.invest === "lumpsum" ? "lumpsum" : next.tab;
+    if (window.location.hash.replace("#", "") !== hash) {
+      window.history.replaceState(null, "", `#${hash}`);
+    }
+    if (scroll) {
+      window.requestAnimationFrame(() => scrollToId("calculator-desk"));
+    }
+  };
+
+  useEffect(() => {
+    const apply = () => {
+      const next = toolFromLocation();
+      if (next) applyTool(next, true);
+    };
+    apply();
+    const t = window.setTimeout(apply, 50);
+    window.addEventListener("hashchange", apply);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener("hashchange", apply);
+    };
+  }, []);
 
   const sip = useMemo(
     () => sipFutureValue(sipAmt, sipRate, sipYears),
@@ -336,35 +481,40 @@ export function FinanceCalculators({ initial = "sip" }: { initial?: Tab }) {
     () => marginCalculate(marginPrice, marginQty, marginPct),
     [marginPrice, marginQty, marginPct]
   );
+  const swpSnap = useMemo(() => {
+    const y = clamp(swpViewYear, 1, Math.max(1, swpYears));
+    return swpAtYear(swp, y);
+  }, [swp, swpViewYear, swpYears]);
+
+  const invest = investMode === "sip" ? sip : lump;
 
   const summary = (() => {
     if (tab === "sip") {
-      return `A monthly SIP of ${formatINR(sipAmt)} for ${sipYears} years at ${sipRate}% p.a. may grow to about ${formatINR(Math.round(sip.futureValue))}.`;
-    }
-    if (tab === "lumpsum") {
-      return `A lumpsum of ${formatINR(lumpAmt)} for ${lumpYears} years at ${lumpRate}% p.a. may grow to about ${formatINR(Math.round(lump.futureValue))}.`;
+      return investMode === "sip"
+        ? `A monthly SIP of ${money(sipAmt)} for ${sipYears} years at ${sipRate}% p.a. may grow to about ${money(sip.futureValue)}.`
+        : `A lumpsum of ${money(lumpAmt)} for ${lumpYears} years at ${lumpRate}% p.a. may grow to about ${money(lump.futureValue)}.`;
     }
     if (tab === "swp") {
       return swp.sustained
-        ? `Withdrawing ${formatINR(swpWithdraw)} / month from ${formatINR(swpCorpus)} at ${swpRate}% may sustain the full ${swpYears} years.`
+        ? `Withdrawing ${money(swpWithdraw)} / month from ${money(swpCorpus)} at ${swpRate}% may sustain the full ${swpYears} years.`
         : `At this pace, the corpus may last about ${swp.yearsLasted.toFixed(1)} years — not the full ${swpYears}.`;
     }
     if (tab === "gst") {
       return gstMode === "exclusive"
-        ? `On ${formatINR(gstAmount)} exclusive of GST @ ${gstRate}%, total payable is about ${formatINR(Math.round(gst.total))}.`
-        : `Of ${formatINR(gstAmount)} inclusive of GST @ ${gstRate}%, tax is about ${formatINR(Math.round(gst.gst))}.`;
+        ? `On ${money(gstAmount)} exclusive of GST @ ${gstRate}%, total payable is about ${money(gst.total)}.`
+        : `Of ${money(gstAmount)} inclusive of GST @ ${gstRate}%, tax is about ${money(gst.gst)}.`;
     }
     if (tab === "emi") {
-      return `A loan of ${formatINR(emiPrincipal)} at ${emiRate}% for ${emiYears} years means EMI of about ${formatINR(Math.round(emi.emi))}.`;
+      return `A loan of ${money(emiPrincipal)} at ${emiRate}% for ${emiYears} years means EMI of about ${money(emi.emi)}.`;
     }
     if (tab === "brokerage") {
-      return `${segment === "delivery" ? "Delivery" : "Intraday"} round-trip on ${brokerQty} shares: total charges ~${formatINR(Math.round(broker.totalCharges))}, net P&L ~${formatINR(Math.round(broker.netPnL))}.`;
+      return `${segment === "delivery" ? "Delivery" : "Intraday"} round-trip on ${brokerQty} shares: total charges ~${money(broker.totalCharges)}, net P&L ~${money(broker.netPnL)}.`;
     }
-    return `Trade value ${formatINR(Math.round(margin.tradeValue))} at ${margin.marginPercent}% margin needs about ${formatINR(Math.round(margin.marginRequired))} (~${margin.leverage.toFixed(1)}x).`;
+    return `Trade value ${money(margin.tradeValue)} at ${margin.marginPercent}% margin needs about ${money(margin.marginRequired)} (~${margin.leverage.toFixed(1)}x).`;
   })();
 
   return (
-    <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg-primary)] shadow-[var(--shadow-glow)] sm:rounded-2xl">
+    <div id="calculator-desk" className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg-primary)] shadow-[var(--shadow-glow)] sm:rounded-2xl">
       {/* Scrollable Groww-style tabs */}
       <div className="border-b border-[var(--border)] px-3 py-3 sm:px-6 sm:py-4">
         <div className="flex items-center gap-3">
@@ -376,7 +526,7 @@ export function FinanceCalculators({ initial = "sip" }: { initial?: Tab }) {
                   <button
                     key={t.id}
                     type="button"
-                    onClick={() => setTab(t.id)}
+                    onClick={() => applyTool({ tab: t.id, invest: t.id === "sip" ? investMode : undefined }, false)}
                     className={`shrink-0 rounded-full px-3.5 py-2 text-[11px] font-semibold tracking-[0.06em] transition-colors sm:px-4 sm:text-xs ${
                       on
                         ? "bg-[var(--text-primary)] text-[var(--bg-primary)]"
@@ -399,19 +549,52 @@ export function FinanceCalculators({ initial = "sip" }: { initial?: Tab }) {
         <div className="space-y-6 border-b border-[var(--border)] p-4 sm:space-y-8 sm:p-6 md:p-8 lg:border-b-0 lg:border-r">
           {tab === "sip" && (
             <>
-              <SliderField
-                label="Monthly investment"
-                value={sipAmt}
-                onChange={setSipAmt}
-                min={500}
-                max={200000}
-                step={500}
-                prefix="₹"
-              />
+              <div className="inline-flex max-w-full overflow-x-auto rounded-full border border-[var(--border)] bg-[var(--bg-secondary)] p-1">
+                {(
+                  [
+                    ["sip", "SIP"],
+                    ["lumpsum", "Lumpsum"],
+                  ] as const
+                ).map(([id, label]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => applyTool({ tab: "sip", invest: id }, false)}
+                    className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold ${
+                      investMode === id
+                        ? "bg-[var(--text-primary)] text-[var(--bg-primary)]"
+                        : "text-[var(--text-muted)]"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {investMode === "sip" ? (
+                <SliderField
+                  label="Monthly investment"
+                  value={sipAmt}
+                  onChange={setSipAmt}
+                  min={SIP_MONTHLY_MIN}
+                  max={SIP_MONTHLY_MAX}
+                  step={500}
+                  prefix="₹"
+                />
+              ) : (
+                <SliderField
+                  label="Total investment"
+                  value={lumpAmt}
+                  onChange={setLumpAmt}
+                  min={LUMP_MIN}
+                  max={LUMP_MAX}
+                  step={1000}
+                  prefix="₹"
+                />
+              )}
               <SliderField
                 label="Expected return rate (p.a)"
-                value={sipRate}
-                onChange={setSipRate}
+                value={investMode === "sip" ? sipRate : lumpRate}
+                onChange={investMode === "sip" ? setSipRate : setLumpRate}
                 min={1}
                 max={30}
                 step={0.5}
@@ -419,40 +602,8 @@ export function FinanceCalculators({ initial = "sip" }: { initial?: Tab }) {
               />
               <SliderField
                 label="Time period"
-                value={sipYears}
-                onChange={setSipYears}
-                min={1}
-                max={40}
-                step={1}
-                suffix="Yr"
-              />
-            </>
-          )}
-
-          {tab === "lumpsum" && (
-            <>
-              <SliderField
-                label="Total investment"
-                value={lumpAmt}
-                onChange={setLumpAmt}
-                min={1000}
-                max={10000000}
-                step={1000}
-                prefix="₹"
-              />
-              <SliderField
-                label="Expected return rate (p.a)"
-                value={lumpRate}
-                onChange={setLumpRate}
-                min={1}
-                max={30}
-                step={0.5}
-                suffix="%"
-              />
-              <SliderField
-                label="Time period"
-                value={lumpYears}
-                onChange={setLumpYears}
+                value={investMode === "sip" ? sipYears : lumpYears}
+                onChange={investMode === "sip" ? setSipYears : setLumpYears}
                 min={1}
                 max={40}
                 step={1}
@@ -466,18 +617,21 @@ export function FinanceCalculators({ initial = "sip" }: { initial?: Tab }) {
               <SliderField
                 label="Total investment"
                 value={swpCorpus}
-                onChange={setSwpCorpus}
-                min={100000}
-                max={50000000}
-                step={50000}
+                onChange={(n) => {
+                  setSwpCorpus(n);
+                  if (swpWithdraw > n) setSwpWithdraw(n);
+                }}
+                min={SWP_INVEST_MIN}
+                max={SWP_INVEST_MAX}
+                step={1000}
                 prefix="₹"
               />
               <SliderField
                 label="Withdrawal per month"
                 value={swpWithdraw}
                 onChange={setSwpWithdraw}
-                min={1000}
-                max={500000}
+                min={SWP_WITHDRAW_MIN}
+                max={SWP_WITHDRAW_MAX}
                 step={1000}
                 prefix="₹"
               />
@@ -493,7 +647,10 @@ export function FinanceCalculators({ initial = "sip" }: { initial?: Tab }) {
               <SliderField
                 label="Time period"
                 value={swpYears}
-                onChange={setSwpYears}
+                onChange={(n) => {
+                  setSwpYears(n);
+                  setSwpViewYear((y) => clamp(y, 1, n));
+                }}
                 min={1}
                 max={40}
                 step={1}
@@ -533,7 +690,7 @@ export function FinanceCalculators({ initial = "sip" }: { initial?: Tab }) {
                 label="GST rate"
                 value={gstRate}
                 onChange={setGstRate}
-                min={0}
+                min={1}
                 max={28}
                 step={1}
                 suffix="%"
@@ -664,45 +821,23 @@ export function FinanceCalculators({ initial = "sip" }: { initial?: Tab }) {
         </div>
 
         <div className="flex flex-col justify-between gap-6 bg-[var(--bg-secondary)]/60 p-4 sm:gap-8 sm:p-6 md:p-8">
-          {(tab === "sip" || tab === "lumpsum") && (
+          {tab === "sip" && (
             <InvestResults
-              invested={tab === "sip" ? sip.invested : lump.invested}
-              gains={tab === "sip" ? sip.gains : lump.gains}
-              total={tab === "sip" ? sip.futureValue : lump.futureValue}
+              invested={invest.invested}
+              gains={invest.gains}
+              total={invest.futureValue}
             />
           )}
 
           {tab === "swp" && (
-            <>
-              <div className="space-y-1">
-                <ResultRow
-                  label="Total withdrawn"
-                  value={formatINR(Math.round(swp.totalWithdrawn))}
-                />
-                <ResultRow
-                  label="Ending corpus"
-                  value={formatINR(Math.round(swp.endingCorpus))}
-                  accent
-                />
-                <div className="mt-2 border-t border-[var(--border)] pt-4">
-                  <p className="text-sm text-[var(--text-secondary)]">Status</p>
-                  <p className="display mt-1 text-2xl sm:text-3xl md:text-4xl">
-                    {swp.sustained
-                      ? "Sustains full period"
-                      : `~${swp.yearsLasted.toFixed(1)} years`}
-                  </p>
-                </div>
-              </div>
-              <Donut
-                a={Math.max(0, swp.endingCorpus)}
-                b={Math.max(0, swp.totalWithdrawn)}
-                aLabel="Ending corpus"
-                bLabel="Withdrawn"
-                centerHint="out"
-                aColor="var(--accent)"
-                bColor="var(--accent-2)"
-              />
-            </>
+            <SwpGrowwResults
+              invested={swpSnap.invested}
+              withdrawn={swpSnap.withdrawn}
+              remaining={swpSnap.remaining}
+              year={swpSnap.year}
+              maxYear={Math.max(1, swpYears)}
+              onYear={setSwpViewYear}
+            />
           )}
 
           {tab === "gst" && (

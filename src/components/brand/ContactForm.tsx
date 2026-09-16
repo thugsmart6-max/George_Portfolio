@@ -7,7 +7,13 @@ const FORMSPREE_ID = process.env.NEXT_PUBLIC_FORMSPREE_ID;
 
 type Status = "idle" | "sending" | "sent" | "error";
 
-export function ContactForm() {
+export function ContactForm({
+  topic,
+  heading = "Write a note",
+}: {
+  topic?: string;
+  heading?: string;
+}) {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
 
@@ -19,6 +25,7 @@ export function ContactForm() {
     const name = String(data.get("name") || "").trim();
     const email = String(data.get("email") || "").trim();
     const message = String(data.get("message") || "").trim();
+    const topicValue = String(data.get("topic") || topic || "").trim();
 
     if (FORMSPREE_ID) {
       setStatus("sending");
@@ -34,12 +41,12 @@ export function ContactForm() {
       } catch {
         setStatus("error");
         setError("Could not send via form. Opening your email app instead…");
-        window.location.href = buildMailto(name, email, message);
+        window.location.href = buildMailto(name, email, message, topicValue);
       }
       return;
     }
 
-    window.location.href = buildMailto(name, email, message);
+    window.location.href = buildMailto(name, email, message, topicValue);
     setStatus("sent");
   };
 
@@ -67,7 +74,7 @@ export function ContactForm() {
           Channel
         </p>
         <p className="display mt-4 text-3xl md:text-4xl">
-          {FORMSPREE_ID ? "Form inbox" : "Email client"}
+          {heading}
         </p>
         <p className="mt-5 text-sm leading-relaxed text-[var(--text-secondary)]">
           {FORMSPREE_ID
@@ -84,6 +91,7 @@ export function ContactForm() {
       </div>
 
       <div className="space-y-8 p-7 md:p-10">
+        {topic ? <input type="hidden" name="topic" value={topic} /> : null}
         <label className="block space-y-2">
           <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
             Name
@@ -130,10 +138,19 @@ export function ContactForm() {
   );
 }
 
-function buildMailto(name: string, email: string, message: string) {
-  const subject = encodeURIComponent(`Wealth By George — message from ${name}`);
+function buildMailto(
+  name: string,
+  email: string,
+  message: string,
+  topic = ""
+) {
+  const subject = encodeURIComponent(
+    topic
+      ? `Wealth By George — ${topic} from ${name}`
+      : `Wealth By George — message from ${name}`
+  );
   const body = encodeURIComponent(
-    `${message}\n\n—\nFrom: ${name}\nReply-to: ${email}`
+    `${topic ? `Topic: ${topic}\n\n` : ""}${message}\n\n—\nFrom: ${name}\nReply-to: ${email}`
   );
   return `mailto:${BRAND.email}?subject=${subject}&body=${body}`;
 }
