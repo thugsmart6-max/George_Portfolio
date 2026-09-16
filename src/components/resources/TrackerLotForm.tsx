@@ -72,6 +72,7 @@ export function TrackerLotForm({
   const [buyText, setBuyText] = useState("");
   const [feesText, setFeesText] = useState("0");
   const [currentText, setCurrentText] = useState("");
+  const [currentTouched, setCurrentTouched] = useState(false);
   const [boughtAt, setBoughtAt] = useState(todayIso());
   const [tape, setTape] = useState<TapeLookup | null>(null);
   const [looking, setLooking] = useState(false);
@@ -177,6 +178,9 @@ export function TrackerLotForm({
           return;
         }
         setTape(data);
+        // #region agent log
+        fetch('http://127.0.0.1:7250/ingest/0d449cad-24ed-44c7-8dfa-538fa5717e80',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1846c0'},body:JSON.stringify({sessionId:'1846c0',runId:'pre-fix',hypothesisId:'A',location:'TrackerLotForm.tsx:lookup',message:'lookup applied tape',data:{key,currentTouched,ltp:data.ltp ?? null,willFill:!currentTouched && data.ltp != null},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         if (!currentTouched && data.ltp != null) {
           setCurrentText(String(data.ltp));
         }
@@ -342,6 +346,9 @@ export function TrackerLotForm({
           onValue={(text) => {
             setCurrentTouched(true);
             setCurrentText(text);
+            // #region agent log
+            fetch('http://127.0.0.1:7250/ingest/0d449cad-24ed-44c7-8dfa-538fa5717e80',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1846c0'},body:JSON.stringify({sessionId:'1846c0',runId:'pre-fix',hypothesisId:'A',location:'TrackerLotForm.tsx:today',message:'today field edited',data:{text},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion
           }}
         />
         <button
